@@ -15,33 +15,43 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Do Something....
-        run: docker --version
 
-
-
-  # build:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - uses: actions/checkout@v3          
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3          
     
-  #   # build the client development container
-  #   - run: docker build -t austin2153/react-test -f ./client/Dockerfile.dev ./client
-  #   # run npm test with CI=true so it exits
-  #   - run: docker run -e CI=true austin2153/react-test npm test
+      # build the client development container
+      - name: Build React Test Container
+        run: docker build -t austin2153/react-test -f ./client/Dockerfile.dev ./client
+      
+      # run npm test with CI=true so it exits
+      - name: Run React Tests
+        run: docker run -e CI=true austin2153/react-test npm test
 
-  #   # if tests pass, continue on to building out prod containers
-  #   # build production container versions (Dockerfile)
+      # if tests pass, continue on to building out prod containers
+      - name: Build Client Container
+        run: docker build -t austin2153/multi-client ./client
+      
+      - name: Build Nginx Container
+        run: docker build -t austin2153/multi-nginx ./nginx
+      
+      - name: Build Server Container
+        run: docker build -t austin2153/multi-server ./server
+      
+      - name: Build Worker Container
+        run: docker build -t austin2153/multi-worker ./worker
 
-  #   # login to docker
-  #   # - run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-  #   - run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-  #   - run: docker build -t austin2153/multi-client ./client
-  #   - run: docker build -t austin2153/multi-nginx ./nginx
-  #   - run: docker build -t austin2153/multi-server ./server
-  #   - run: docker build -t austin2153/multi-worker ./worker
-  #   # push to docker
-  #   # - run: docker push austin2153/multi-client
-  #   # - run: docker push austin2153/multi-nginx
-  #   # - run: docker push austin2153/multi-server
-  #   # - run: docker push austin2153/multi-worker
+      # push to docker
+      - name: Push Client Container
+        run: docker push austin2153/multi-client
+      
+      - name: Push Nginx Container
+        run: docker push austin2153/multi-nginx
+      
+      - name: Push Server Container
+        run: docker push austin2153/multi-server
+      
+      - name: Push Worker Container
+        run: docker push austin2153/multi-worker
