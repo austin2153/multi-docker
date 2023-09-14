@@ -1,4 +1,3 @@
-name: Build, test and push images
 
 on:
   push:
@@ -6,32 +5,37 @@ on:
 
 jobs:
 
-  build:
+  # Job to build and test React container
+  build_and_test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3          
     
-      # build the client development container
+      # Build the client development container
       - name: Build React Test Container
         run: docker build -t austin2153/react-test -f ./client/Dockerfile.dev ./client
       
-      # run npm test with CI=true so it exits
+      # Run npm test with CI=true so it exits
       - name: Run React Tests
         run: docker run -e CI=true austin2153/react-test npm test
 
-  # if tests pass, continue on to building out prod containers
-  dockerhub-steps:
+  # Job to build and push production containers to Docker Hub
+  dockerhub_build_and_push:
     runs-on: ubuntu-latest
-    needs: build  # This specifies that it depends on the successful completion of the "build" job.
+    needs: build_and_test  # Depends on the successful completion of the "build_and_test" job
     steps:
-      -
-        name: Login to Docker Hub
+      - name: Checkout code
+        uses: actions/checkout@v3   # Fetches the entire repository
+
+      # Login to Docker Hub
+      - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      # Build production containers
       - name: Build Client Container
         run: docker build -t austin2153/multi-client ./client
       
@@ -44,7 +48,7 @@ jobs:
       - name: Build Worker Container
         run: docker build -t austin2153/multi-worker ./worker
 
-      # push to docker
+      # Push production containers to Docker Hub
       - name: Push Client Container
         run: docker push austin2153/multi-client
       
