@@ -7,28 +7,40 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build:
+
+  login:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3          
+      -
+        name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+
+  # build:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - uses: actions/checkout@v3          
     
-    # build the client development container
-    - run: docker build -t austin2153/react-test -f ./client/Dockerfile.dev ./client
-    # run npm test with CI=true so it exits
-    - run: docker run -e CI=true austin2153/react-test npm test
+  #   # build the client development container
+  #   - run: docker build -t austin2153/react-test -f ./client/Dockerfile.dev ./client
+  #   # run npm test with CI=true so it exits
+  #   - run: docker run -e CI=true austin2153/react-test npm test
 
-    # if tests pass, continue on to building out prod containers
-    # build production container versions (Dockerfile)
+  #   # if tests pass, continue on to building out prod containers
+  #   # build production container versions (Dockerfile)
 
-    # login to docker
-    # - run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-    - run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-    - run: docker build -t austin2153/multi-client ./client
-    - run: docker build -t austin2153/multi-nginx ./nginx
-    - run: docker build -t austin2153/multi-server ./server
-    - run: docker build -t austin2153/multi-worker ./worker
-    # push to docker
-    # - run: docker push austin2153/multi-client
-    # - run: docker push austin2153/multi-nginx
-    # - run: docker push austin2153/multi-server
-    # - run: docker push austin2153/multi-worker
+  #   # login to docker
+  #   # - run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+  #   - run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+  #   - run: docker build -t austin2153/multi-client ./client
+  #   - run: docker build -t austin2153/multi-nginx ./nginx
+  #   - run: docker build -t austin2153/multi-server ./server
+  #   - run: docker build -t austin2153/multi-worker ./worker
+  #   # push to docker
+  #   # - run: docker push austin2153/multi-client
+  #   # - run: docker push austin2153/multi-nginx
+  #   # - run: docker push austin2153/multi-server
+  #   # - run: docker push austin2153/multi-worker
