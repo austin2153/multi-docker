@@ -1,0 +1,30 @@
+name: Build, test and push images
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3          
+    # login to docker
+    - run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+    # build the client development container
+    - run: docker build -t austin2153/react-test -f ./client/Dockerfile.dev ./client
+    # run npm test with CI=true so it exits
+    - run: docker run -e CI=true austin2153/react-test npm test
+    # if tests pass, continue on to building out prod containers
+    # build production container versions (Dockerfile)
+    - run: docker build -t austin2153/multi-client ./client
+    - run: docker build -t austin2153/multi-nginx ./nginx
+    - run: docker build -t austin2153/multi-server ./server
+    - run: docker build -t austin2153/multi-worker ./worker
+    # push to docker
+    - run: docker push austin2153/multi-client
+    - run: docker push austin2153/multi-nginx
+    - run: docker push austin2153/multi-server
+    - run: docker push austin2153/multi-worker
