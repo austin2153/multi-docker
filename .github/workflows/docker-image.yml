@@ -6,16 +6,6 @@ on:
 
 jobs:
 
-  login:
-    runs-on: ubuntu-latest
-    steps:
-      -
-        name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
   build:
     runs-on: ubuntu-latest
     steps:
@@ -30,7 +20,18 @@ jobs:
       - name: Run React Tests
         run: docker run -e CI=true austin2153/react-test npm test
 
-      # if tests pass, continue on to building out prod containers
+  # if tests pass, continue on to building out prod containers
+  dockerhub-steps:
+    runs-on: ubuntu-latest
+    needs: build  # This specifies that it depends on the successful completion of the "build" job.
+    steps:
+      -
+        name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Build Client Container
         run: docker build -t austin2153/multi-client ./client
       
