@@ -14,11 +14,11 @@ jobs:
     
       # Build the client development container
       - name: Build React Test Container
-        run: docker build -t austin2153/react-test -f ./client/Dockerfile.dev ./client
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/react-test -f ./client/Dockerfile.dev ./client
       
       # Run npm test with CI=true so it exits
       - name: Run React Tests
-        run: docker run -e CI=true austin2153/react-test npm test
+        run: docker run -e CI=true ${{ secrets.DOCKERHUB_USERNAME }}/react-test npm test
 
   # Job to build and push production containers to Docker Hub
   dockerhub_build_and_push:
@@ -37,26 +37,26 @@ jobs:
 
       # Build production containers
       - name: Build Client Container
-        run: docker build -t austin2153/multi-client ./client
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/multi-client ./client
       
       - name: Build Nginx Container
-        run: docker build -t austin2153/multi-nginx ./nginx
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/multi-nginx ./nginx
       
       - name: Build Server Container
-        run: docker build -t austin2153/multi-server ./server
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/multi-server ./server
       
       - name: Build Worker Container
-        run: docker build -t austin2153/multi-worker ./worker
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/multi-worker ./worker
 
       # Push production containers to Docker Hub
       - name: Push Client Container
-        run: docker push austin2153/multi-client
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/multi-client
       
       - name: Push Nginx Container
-        run: docker push austin2153/multi-nginx
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/multi-nginx
       
       - name: Push Server Container
-        run: docker push austin2153/multi-server
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/multi-server
       
       - name: Push Worker Container
-        run: docker push austin2153/multi-worker
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/multi-worker
